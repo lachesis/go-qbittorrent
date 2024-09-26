@@ -313,6 +313,30 @@ func (c *Client) AddTorrentFromMemoryCtx(ctx context.Context, buf []byte, option
 	return nil
 }
 
+func (c *Client) GetTorrentContentFiles(ctx context.Context, hash string) ([]TorrentContentFile, error) {
+	params := url.Values{}
+	params.Add("hash", hash)
+
+	resp, err := c.getCtx(ctx, "torrents/files?"+params.Encode(), nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error fetching torrent content files for: %s", hash)
+	}
+
+	defer resp.Body.Close()
+
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return nil, errors.Wrap(readErr, "could not read body")
+	}
+
+	var files []TorrentContentFile
+	if err := json.Unmarshal(body, &files); err != nil {
+		return nil, errors.Wrapf(err, "could not unmarshal raw json: %s", body)
+	}
+
+	return files, nil
+}
+
 // AddTorrentFromFile add new torrent from torrent file
 func (c *Client) AddTorrentFromFile(filePath string, options map[string]string) error {
 	return c.AddTorrentFromFileCtx(context.Background(), filePath, options)

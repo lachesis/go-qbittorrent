@@ -93,6 +93,16 @@ type Category struct {
 	SavePath string `json:"savePath"`
 }
 
+type TorrentContentFile struct {
+	//todo PieceRange [0,135]
+	Availability float32 `json:"availability"`
+	IsSeed       bool    `json:"is_seed"`
+	Name         string  `json:"name"`
+	Priority     int     `json:"priority"`
+	Progress     float32 `json:"progress"`
+	Size         int     `json:"size"`
+}
+
 type TorrentState string
 
 const (
